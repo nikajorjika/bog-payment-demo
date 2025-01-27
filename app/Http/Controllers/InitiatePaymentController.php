@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Jorjika\BogPayment\Facades\Pay;
+use Illuminate\Support\Facades\Log;
+use RedberryProducts\LaravelBogPayment\Facades\Pay;
 
 class InitiatePaymentController extends Controller
 {
@@ -28,7 +29,6 @@ class InitiatePaymentController extends Controller
             'status' => 'pending',
             'amount' => $data['amount'],
         ]);
-
         // Initiate payment
         $paymentDetails = Pay::orderId($transaction->id)
             ->redirectUrl(route('status', ['transaction_id' => $transaction->id]))

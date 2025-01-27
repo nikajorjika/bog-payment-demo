@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Jorjika\BogPayment\Facades\Transaction;
+
+
+use App\Models\Transaction as LocalTransactionModel;
+use RedberryProducts\LaravelBogPayment\Facades\Transaction;
 
 class TransactionStatusController extends Controller
 {
     /**
      * Handle the incoming request.
      */
-    public function __invoke(string $transaction_id)
+    public function __invoke(string $id)
     {
-        // Take transaction details from the payment gateway
-        return Transaction::get($transaction_id);
+        $transaction = LocalTransactionModel::findOrFail($id);
+
+        return Transaction::get($transaction->transaction_id);
     }
 }

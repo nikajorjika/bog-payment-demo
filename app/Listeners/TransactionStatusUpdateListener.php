@@ -3,9 +3,8 @@
 namespace App\Listeners;
 
 use App\Models\Transaction;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Nikajorjika\BogPayment\Events\TransactionStatusUpdated;
+use Illuminate\Support\Facades\Log;
+use RedberryProducts\LaravelBogPayment\Events\TransactionStatusUpdated;
 
 class TransactionStatusUpdateListener
 {
@@ -14,20 +13,20 @@ class TransactionStatusUpdateListener
      */
     public function handle(TransactionStatusUpdated $event): void
     {
-        $transaction = Transaction::withUser()
-            ->whereId($event['external_order_id'])
+        Log::info('TransactionStatusUpdated event fired', ['event' => $event]);
+        $providerTransaction = $event->transaction;
+        $transaction = Transaction::with('model')
+            ->whereId($providerTransaction['external_order_id'])
             ->firstOrFail();
 
         $transaction->update([
-            'status' => $event['transaction']['order_status']['key'],
-            'final_amount' => $event['transaction']['purchase_units']['request_amount'],
-            'currency' => $event['transaction']['purchase_units']['currency_code'],
-            'transaction_id' => $event['transaction']['payment_detail']['transaction_id'] ?? $transaction->transaction_id,
+            'status' => $providerTransaction['order_status']['key'],
+            'final_amount' => $providerTransaction['purchase_units']['request_amount'],
+            'currency' => $providerTransaction['purchase_units']['currency_code'],
+            'transaction_id' => $providerTransaction['order_id'],
             'log' => $event,
-            'is_paid' => $event['transaction']['order_status']['key'] === 'completed',
-            'is_completed' => $event['transaction']['order_status']['key'] === 'completed',
+            'is_paid' => $providerTransaction['order_status']['key'] === 'completed',
+            'is_completed' => $providerTransaction['order_status']['key'] === 'completed',
         ]);
-
-        // After this you can update user balance or do any other actions ex: Notify user of failed or successful transaction
     }
 }
