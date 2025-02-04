@@ -9,7 +9,7 @@
         "php": "^8.2",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
-        "redberryproducts/laravel-bog-payment": "^1.0"
+        "redberryproducts/laravel-bog-payment": "dev-main"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
